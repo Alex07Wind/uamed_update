@@ -184,7 +184,7 @@ public class GetHtmlSite {
 	
 //	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/cherokee-tooniforms-scrubs.asp"; //Cherokee Tooniforms Scrubs
 //	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/disney-scrubs.asp";
-	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/cherokee-print-scrubs.asp";	//Cherokee Print all
+//	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/cherokee-print-scrubs.asp";	//Cherokee Print all
 
 //	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/koi-print-tops.asp";	//koi print
 //	public String SiteURL =	"http://www.uniformadvantage.com/pages/dpt/ud-spa-&-housekeeping-uniforms.asp"; //SPA solid print
@@ -1223,174 +1223,174 @@ public void DoReadJsoup() throws IOException {
 	String strNameUa;
 	//for translate
 	Translate MyTranslate = new Translate ();
+	for (String SiteURL:UpdateURL) {
+		//urlConn.setRequestProperty("User-Agent", "");
+		Document doc = Jsoup.connect(SiteURL)
+				.userAgent("Mozilla")
+				.timeout(3*60*1000)
+				.get();
+		String title = doc.title();
+		System.out.println("title = "+title);
+		Elements content = doc.getElementsByClass("productList");
+		//Elements content = doc.getElementsByClass("dptcopy");
 
-	//urlConn.setRequestProperty("User-Agent", "");
-	Document doc = Jsoup.connect(SiteURL)
-			.userAgent("Mozilla")
-			.timeout(3*60*1000)
-			.get();
-	String title = doc.title();
-	System.out.println("title = "+title);
-	Elements content = doc.getElementsByClass("productList");
-	//Elements content = doc.getElementsByClass("dptcopy");
 
+		for (Element elementsSKU:content) {
 
-	for (Element elementsSKU:content) {
+			String textBlockGoods = elementsSKU.text();
+	//		System.out.println("1.linkImg1="+textBlockGoods);
+	//		Elements SKU =	elementsSKU.select("dptitem");
+	//		Elements SKU =	doc.select("li.dptitem");
+			Elements SKU =	elementsSKU.select("li.dptitem");
 
-		String textBlockGoods = elementsSKU.text();
-//		System.out.println("1.linkImg1="+textBlockGoods);
-//		Elements SKU =	elementsSKU.select("dptitem");
-//		Elements SKU =	doc.select("li.dptitem");
-		Elements SKU =	elementsSKU.select("li.dptitem");
-		
-		for (Element elementsSKULow:SKU) {
-		
-			if (!textBlockGoods.isEmpty()) {
-				
-				Elements imageSKU =	elementsSKULow.getElementsByClass("dptimg");
-				
-				Elements imageSKUSrc = imageSKU.select("a[href]");//
-				String linkHref = imageSKUSrc.attr("href");
-				
-				Elements imageSKUSrc2 = imageSKU.select("img[src]");//
-				String linkImg0  = imageSKUSrc2.attr("src");
-				
-				Elements styleSKU =	elementsSKULow.getElementsByClass("dptstyle");
-				String styleTxt = styleSKU.text();
-	
-				Elements NameSKU =	elementsSKULow.getElementsByClass("dptcopy");
-				String NameTxt = NameSKU.text();
-				
-				Elements PriceSKU =	elementsSKULow.getElementsByClass("dptprice");
-				String PriceTxt = PriceSKU.text();
-				
-				if (PriceSKU.isEmpty()) {
-					
-					PriceSKU =	elementsSKULow.getElementsByClass("dptsale");
-					PriceTxt = PriceSKU.text();
-					System.out.println("PriceSKU.empty()= Price:"+PriceTxt);
-					
+			for (Element elementsSKULow:SKU) {
+
+				if (!textBlockGoods.isEmpty()) {
+
+					Elements imageSKU =	elementsSKULow.getElementsByClass("dptimg");
+
+					Elements imageSKUSrc = imageSKU.select("a[href]");//
+					String linkHref = imageSKUSrc.attr("href");
+
+					Elements imageSKUSrc2 = imageSKU.select("img[src]");//
+					String linkImg0  = imageSKUSrc2.attr("src");
+
+					Elements styleSKU =	elementsSKULow.getElementsByClass("dptstyle");
+					String styleTxt = styleSKU.text();
+
+					Elements NameSKU =	elementsSKULow.getElementsByClass("dptcopy");
+					String NameTxt = NameSKU.text();
+
+					Elements PriceSKU =	elementsSKULow.getElementsByClass("dptprice");
+					String PriceTxt = PriceSKU.text();
+
 					if (PriceSKU.isEmpty()) {
-						continue;
+
+						PriceSKU =	elementsSKULow.getElementsByClass("dptsale");
+						PriceTxt = PriceSKU.text();
+						System.out.println("PriceSKU.empty()= Price:"+PriceTxt);
+
+						if (PriceSKU.isEmpty()) {
+							continue;
+						}
+
 					}
-									
-				};
-				
 
-				System.out.println("2.linkImg="+linkImg0+" linkHref="+linkHref+ "styleTxt="+styleTxt+ " NameTxt="+NameTxt+ " PriceTxt="+PriceTxt);
 
-				//Добавляем продукт в список
-				curproduct = new Productua();	  			
-	  			String domainlnk = "http://www.uniformadvantage.com";
-    		    String linkimg = domainlnk+linkImg0;
-       		    curproduct.SetLinkImage(linkimg.replace("200x240","600x720"));
-       		    
-	      		int Pos1 = linkImg0.lastIndexOf("/");
-	      		String filenamestr = linkImg0.substring(Pos1+1);  
-	      		curproduct.SetFileName(filenamestr);
-	      		
-	      		curproduct.SetFileNameSite("/data/newproduct/"+filenamestr);
-	    	
-	      		curproduct.SetName(NameTxt);
+					System.out.println("2.linkImg="+linkImg0+" linkHref="+linkHref+ "styleTxt="+styleTxt+ " NameTxt="+NameTxt+ " PriceTxt="+PriceTxt);
 
-				//Top			- Топ
-				//Pant			- Брюки
-				//Jacket		- Куртка
-				//Lab Coat		- Халат
-				//3/4 Sleeve    - 3/4 рукав
-				//Maternity		- для беременных
-				//Drawstring 	- прямые
-				//Unisex 		- женский, мужской(unisex)
-				//Men			- мужской
-				//Men's  		- мужской
-				//Women's 		- женский
-				//Ladies		- женский
-				//PETITE  		- укороченные
-				//Petite		- укороченные
-				//TALL 			- удлиненные
-				//Jean Style
-				//Mid Rise
-				//8-Pocket 		-
-				//Full Length	- полной длины
-				//Skirt			- Юбка
-				//Contemporary Fit
-				//with			- с
-				//Back Elastic	- резинкой сзади
-				//Elastic Waist - на резинке
-				//Zipper Fly 	- на молнии
-				//Zip Front 	- на молнии
+					//Добавляем продукт в список
+					curproduct = new Productua();
+					String domainlnk = "http://www.uniformadvantage.com";
+					String linkimg = domainlnk+linkImg0;
+					curproduct.SetLinkImage(linkimg.replace("200x240","600x720"));
+
+					int Pos1 = linkImg0.lastIndexOf("/");
+					String filenamestr = linkImg0.substring(Pos1+1);
+					curproduct.SetFileName(filenamestr);
+
+					curproduct.SetFileNameSite("/data/newproduct/"+filenamestr);
+
+					curproduct.SetName(NameTxt);
+
+					//Top			- Топ
+					//Pant			- Брюки
+					//Jacket		- Куртка
+					//Lab Coat		- Халат
+					//3/4 Sleeve    - 3/4 рукав
+					//Maternity		- для беременных
+					//Drawstring 	- прямые
+					//Unisex 		- женский, мужской(unisex)
+					//Men			- мужской
+					//Men's  		- мужской
+					//Women's 		- женский
+					//Ladies		- женский
+					//PETITE  		- укороченные
+					//Petite		- укороченные
+					//TALL 			- удлиненные
+					//Jean Style
+					//Mid Rise
+					//8-Pocket 		-
+					//Full Length	- полной длины
+					//Skirt			- Юбка
+					//Contemporary Fit
+					//with			- с
+					//Back Elastic	- резинкой сзади
+					//Elastic Waist - на резинке
+					//Zipper Fly 	- на молнии
+					//Zip Front 	- на молнии
 
 
 
 
-	    		//curproduct.SetNameUA("Топ женский медицинский с принтом");
-				strNameUa = MyTranslate.NameTranslate(NameTxt, curproduct);
+					//curproduct.SetNameUA("Топ женский медицинский с принтом");
+					strNameUa = MyTranslate.NameTranslate(NameTxt, curproduct);
 
-//				curproduct.SetNameUA(strNameUa);
-				curproduct.SetNameUA(strNameUa+"с принтом");
+	//				curproduct.SetNameUA(strNameUa);
+					curproduct.SetNameUA(strNameUa+"с принтом");
 
-				//curproduct.SetNameUA("Топ женский, мужской(unisex) медицинский");
-	      		//curproduct.SetNameUA("Костюм женский медицинский");
-				//curproduct.SetNameUA("Топ женский медицинский");
-	      		//curproduct.SetNameUA("Брюки женские медицинские");
-	      		//curproduct.SetNameUA("Халат женские медицинский");
-//	      		curproduct.SetNameUA("Куртка женская медицинская с рисунком");
-	      		
-	      		//curproduct.SetNameDescriptionUA("Топ женский медицинский с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 100% хлопок.");
-				//  curproduct.SetNameDescriptionUA("Костюм женский медицинский. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок.");
-//
-// 				curproduct.SetNameDescriptionUA(strNameUa+"с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиэстер/хлопок.");
-				curproduct.SetNameDescriptionUA(strNameUa+"с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 100% хлопок.");
-//				curproduct.SetNameDescriptionUA(strNameUa+". Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиэстер/хлопок.");
-				//curproduct.SetNameDescriptionUA("Топ женский, мужской(unisex) медицинский с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиэстер/хлопок.");
-	    		//curproduct.SetNameDescriptionUA("Брюки женские медицинские. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиестер/хлопок. Цвета в ассортименте.");
-	    		//curproduct.SetNameDescriptionUA("Халат медицинский. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок. Цвета в ассортименте.");
-	      		//curproduct.SetNameUA("Халат женский медицинский");
-	      		//curproduct.SetNameDescriptionUA("Куртка женская медицинская. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок. Цвета в ассортименте.");
-//				  curproduct.SetNameDescriptionUA("Куртка женская медицинская с рисунком. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиестер/хлопок. Цвета в ассортименте.");
-	    		
-	    		String tmpstr = GetValueFromStringByPattern(styleTxt,"#[^<]+");
-	    		tmpstr = tmpstr.substring(2);
-	       		//System.out.println("Articul="+tmpstr);
-	       		curproduct.SetArticul(tmpstr.trim());
+					//curproduct.SetNameUA("Топ женский, мужской(unisex) медицинский");
+					//curproduct.SetNameUA("Костюм женский медицинский");
+					//curproduct.SetNameUA("Топ женский медицинский");
+					//curproduct.SetNameUA("Брюки женские медицинские");
+					//curproduct.SetNameUA("Халат женские медицинский");
+	//	      		curproduct.SetNameUA("Куртка женская медицинская с рисунком");
 
-       			tmpstr = GetValueFromStringByPattern(PriceTxt,"\\$[\\d]+(\\.[\\d]+)?"); //(\.\d+)?
-       			
-       			if (tmpstr.isEmpty()) {
-       					continue;
-       			}
-       			
-       			tmpstr = tmpstr.substring(1);
-       			System.out.println("Price="+tmpstr);
-       			float f = ConvertTxtPriceToFloat(tmpstr);
-      		    curproduct.SetPrice(f);
-       		    curproduct.SetPriceUAH(curproduct.GetUaPriceWithAdd(f));
-       		    System.out.println("PriceUA="+curproduct.GetPriceUAH());
-	    						
-       		    
-				//checking for colors and if got it do reading colors
-				//Elements SKUcolor =	elementsSKULow.select("li.dptcbgrp");
-				Elements cbgrpSKU =	elementsSKULow.getElementsByClass("dptcbgrp");
-				Elements colorSKU =	cbgrpSKU.select("li.colorBlock");
-				if (!colorSKU.isEmpty()) {
-					System.out.println("Find colors: "+colorSKU.size());
-//					
-					GetColorsFromHref(SiteURLRoot+linkHref, curproduct);
+					//curproduct.SetNameDescriptionUA("Топ женский медицинский с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 100% хлопок.");
+					//  curproduct.SetNameDescriptionUA("Костюм женский медицинский. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок.");
+	//
+	// 				curproduct.SetNameDescriptionUA(strNameUa+"с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиэстер/хлопок.");
+					curproduct.SetNameDescriptionUA(strNameUa+"с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 100% хлопок.");
+	//				curproduct.SetNameDescriptionUA(strNameUa+". Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиэстер/хлопок.");
+					//curproduct.SetNameDescriptionUA("Топ женский, мужской(unisex) медицинский с принтом. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиэстер/хлопок.");
+					//curproduct.SetNameDescriptionUA("Брюки женские медицинские. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиестер/хлопок. Цвета в ассортименте.");
+					//curproduct.SetNameDescriptionUA("Халат медицинский. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок. Цвета в ассортименте.");
+					//curproduct.SetNameUA("Халат женский медицинский");
+					//curproduct.SetNameDescriptionUA("Куртка женская медицинская. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 65/35 полиестер/хлопок. Цвета в ассортименте.");
+	//				  curproduct.SetNameDescriptionUA("Куртка женская медицинская с рисунком. Имеются выточки и боковые разрезы. Медицинская одежда изготовлена из мягкой и легкой в уходе ткани 55/45 полиестер/хлопок. Цвета в ассортименте.");
+
+					String tmpstr = GetValueFromStringByPattern(styleTxt,"#[^<]+");
+					tmpstr = tmpstr.substring(2);
+					//System.out.println("Articul="+tmpstr);
+					curproduct.SetArticul(tmpstr.trim());
+
+					tmpstr = GetValueFromStringByPattern(PriceTxt,"\\$[\\d]+(\\.[\\d]+)?"); //(\.\d+)?
+
+					if (tmpstr.isEmpty()) {
+							continue;
+					}
+
+					tmpstr = tmpstr.substring(1);
+					System.out.println("Price="+tmpstr);
+					float f = ConvertTxtPriceToFloat(tmpstr);
+					curproduct.SetPrice(f);
+					curproduct.SetPriceUAH(curproduct.GetUaPriceWithAdd(f));
+					System.out.println("PriceUA="+curproduct.GetPriceUAH());
+
+
+					//checking for colors and if got it do reading colors
+					//Elements SKUcolor =	elementsSKULow.select("li.dptcbgrp");
+					Elements cbgrpSKU =	elementsSKULow.getElementsByClass("dptcbgrp");
+					Elements colorSKU =	cbgrpSKU.select("li.colorBlock");
+					if (!colorSKU.isEmpty()) {
+						System.out.println("Find colors: "+colorSKU.size());
+	//
+						GetColorsFromHref(SiteURLRoot+linkHref, curproduct);
+					}
+
+					list.add(curproduct);
+					System.out.println("Add item("+list.size()+")="+curproduct.GetArticul()+" "+curproduct.GetName()+" "+curproduct.GetPrice()+" tr="+NameTxt+" - "+curproduct.GetNameUA()+" Manuf="+curproduct.GetManufactureID());
+					//System.out.println("Sex-"+curproduct.GetSex());
+
 				}
 
-				list.add(curproduct);
-         		System.out.println("Add item("+list.size()+")="+curproduct.GetArticul()+" "+curproduct.GetName()+" "+curproduct.GetPrice()+" tr="+NameTxt+" - "+curproduct.GetNameUA()+" Manuf="+curproduct.GetManufactureID());
-				//System.out.println("Sex-"+curproduct.GetSex());
-				
-			}
-			
-			
 
+
+			}
 		}
-	}
-	
-	
-		
+
+	}//for each url
+
 }//	DoReadJsoup() {
 
 }//class

@@ -10,6 +10,7 @@ public class Main {
 	GetHtmlSite MyGetSite = new GetHtmlSite ();
 //	MyGetSite.DoReadLineSearchFormat();
 	//MyGetSite.DoReadLine();
+
 	MyGetSite.DoReadJsoup();
 	MyGetSite.DoAllProduct();
 	
